@@ -1,5 +1,4 @@
 
-
 /*
 2 3 0 3 10 11 12 1 1 0 1 99 2 1 1 2
 A----------------------------------
@@ -34,12 +33,12 @@ object Day08 {
 
   sealed trait ChildNode
 
-  case class ParentNode(childCount: Int, metaCount: Int, children: List[ChildNode], data: List[Int]) extends ChildNode
+  case class ParentNode(childCount: Int, dataCount: Int, children: List[ChildNode], data: List[Int]) extends ChildNode
 
   /**
     * childCount is always 0, but makes it easier to read the log.
     */
-  case class LeafNode(childCount: Int, metaCount: Int, data: List[Int]) extends ChildNode
+  case class LeafNode(childCount: Int, dataCount: Int, data: List[Int]) extends ChildNode
 
 
   import scala.util.parsing.combinator.JavaTokenParsers
@@ -48,17 +47,17 @@ object Day08 {
   object MyParser extends JavaTokenParsers {
 
     def parent: Parser[ChildNode] = wholeNumber ~ wholeNumber into {
-      case childCount ~ metaCount => repN(childCount.toInt, child) ~ repN(metaCount.toInt, wholeNumber) ^^ {
-        case children ~ data => ParentNode(childCount.toInt, metaCount.toInt, children, data.map(_.toInt))
+      case childCount ~ dataCount => repN(childCount.toInt, child) ~ repN(dataCount.toInt, wholeNumber) ^^ {
+        case children ~ data => ParentNode(childCount.toInt, dataCount.toInt, children, data.map(_.toInt))
       }
     }
 
     def child = log(leaf)("leaf") | no_log(parent)("parent")
 
     def leaf = "0" ~> wholeNumber into {
-      metaCount =>
-        repN(metaCount.toInt, wholeNumber) ^^ {
-          data => LeafNode(0, metaCount.toInt, data.map(_.toInt))
+      dataCount =>
+        repN(dataCount.toInt, wholeNumber) ^^ {
+          data => LeafNode(0, dataCount.toInt, data.map(_.toInt))
         }
     }
 
