@@ -22,47 +22,17 @@ object Day08 extends App {
   val nodes: List[Int] = input.mkString.split(" ").map(_.toInt).toList
 
 
-  MyParser.parse(sampleInputText)
+  println
+  println("BadSolution1")
+  println
+  BadSolution1.solve
 
-
-  trait ChildNode
-
-  case class ParentNode(childCount: Int, metaCount: Int, children: List[ChildNode], data: List[Int]) extends ChildNode
-
-  case class LeafNode(childCount: Int, metaCount: Int, data: List[Int]) extends ChildNode
-
-  import scala.util.parsing.combinator.JavaTokenParsers
-
-  //noinspection TypeAnnotation
-  object MyParser extends JavaTokenParsers {
-
-    def parent: Parser[ChildNode] = wholeNumber ~ wholeNumber into {
-      case childCount ~ metaCount => repN(childCount.toInt, child) ~ repN(metaCount.toInt, wholeNumber) ^^ {
-        case children ~ data => ParentNode(childCount.toInt, metaCount.toInt, children, data.map(_.toInt))
-      }
-    }
-
-    def child = log(leaf)("leaf") | log(parent)("parent")
-
-    def leaf = "0" ~> wholeNumber into {
-      metaCount =>
-        repN(metaCount.toInt, wholeNumber) ^^ {
-          data => LeafNode(0, metaCount.toInt, data.map(_.toInt))
-        }
-    }
-
-    def no_log[T](p: Parser[T])(notUsed: String) = p
-
-    def parse(s: String) = parseAll(MyParser.child, s) match {
-      case Success(startDslData, _) =>
-        startDslData
-
-      case NoSuccess(msg, next) =>
-        println(msg)
-        println(next)
-        null
-    }
-  }
+  println
+  println
+  println
+  println("BadSolution2")
+  println
+  BadSolution2.solve
 
 
   object BadSolution1 {
@@ -77,14 +47,25 @@ object Day08 extends App {
       case ((childCount, metaCount, array), node) => (childCount - 1, metaCount, array)
     }
 
-    val (childCount9, metaCount9, array9) =
-      sampleInput.take(9).foldLeft((10, 0, Array.empty[Int]))(collectMetaNodesBadSolution1)
+    def solve = {
+      val (childCount9, metaCount9, array9) =
+        sampleInput.take(9).foldLeft((10, 0, Array.empty[Int]))(collectMetaNodesBadSolution1)
 
-    val (childCount10, metaCount10, array10) =
-      sampleInput.take(10).foldLeft((10, 0, Array.empty[Int]))(collectMetaNodesBadSolution1)
+      val (childCount10, metaCount10, array10) =
+        sampleInput.take(10).foldLeft((10, 0, Array.empty[Int]))(collectMetaNodesBadSolution1)
 
-    val (childCount11, metaCount11, array11) =
-      sampleInput.take(11).foldLeft((10, 0, Array.empty[Int]))(collectMetaNodesBadSolution1)
+      val (childCount11, metaCount11, array11) =
+        sampleInput.take(11).foldLeft((10, 0, Array.empty[Int]))(collectMetaNodesBadSolution1)
+
+      println("childCount9", "metaCount9", "array9")
+      println(childCount9, metaCount9, array9.toList)
+
+      println("childCount10", "metaCount10", "array10")
+      println(childCount10, metaCount10, array10.toList)
+
+      println("childCount11", "metaCount11", "array11")
+      println(childCount11, metaCount11, array11.toList)
+    }
   }
 
 
@@ -100,7 +81,9 @@ object Day08 extends App {
         collectMetaNodesBadSolution2(newTail, metaNodes)
     }
 
-    collectMetaNodesBadSolution2(sampleInput.toList, List.empty[Int])
+    def solve {
+      collectMetaNodesBadSolution2(sampleInput.toList, List.empty[Int])
+    }
   }
 
 }
