@@ -23,7 +23,7 @@ object Day08 {
 
   val sampleInputText = "2 3 0 3 10 11 12 1 1 0 1 99 2 1 1 2"
 
-  val inputText = scala.io.Source.fromFile("day08-0-input.txt").mkString
+  val inputText: String = scala.io.Source.fromFile("day08-0-input.txt").mkString
 
 
   val sumThem: (Int, ChildNode) => Int = {
