@@ -1,3 +1,5 @@
+
+
 /*
 2 3 0 3 10 11 12 1 1 0 1 99 2 1 1 2
 A----------------------------------
@@ -12,24 +14,33 @@ C, which has 1 child node (D) and 1 metadata entry (2).
 D, which has 0 child nodes and 1 metadata entry (99).
 */
 
-object Day08 extends App {
+object Day08 {
+
+  def main(args: Array[String]): Unit = {
+    val parent = MyParser.parse(inputText)
+    println("task1", sumThem(0, parent))
+  }
 
   val sampleInputText = "2 3 0 3 10 11 12 1 1 0 1 99 2 1 1 2"
-  val sampleInput = sampleInputText.split(" ").map(_.toInt)
-  sampleInput.zipWithIndex.mkString("\n")
 
-  val input = scala.io.Source.fromFile("day08-0-input.txt")
-  val nodes: List[Int] = input.mkString.split(" ").map(_.toInt).toList
+  val inputText = scala.io.Source.fromFile("day08-0-input.txt").mkString
 
 
-  MyParser.parse(sampleInputText)
+  val sumThem: (Int, ChildNode) => Int = {
+    case (sum, LeafNode(_, _, data)) => sum + data.sum
+    case (sum, ParentNode(_, _, children, data)) => children.foldLeft(sum + data.sum)(sumThem) // Error:(27, 53) could not optimize @tailrec annotated method sumThem: it contains a recursive call not in tail position
+  }
 
 
-  trait ChildNode
+  sealed trait ChildNode
 
   case class ParentNode(childCount: Int, metaCount: Int, children: List[ChildNode], data: List[Int]) extends ChildNode
 
+  /**
+    * childCount is always 0, but makes it easier to read the log.
+    */
   case class LeafNode(childCount: Int, metaCount: Int, data: List[Int]) extends ChildNode
+
 
   import scala.util.parsing.combinator.JavaTokenParsers
 
@@ -42,7 +53,7 @@ object Day08 extends App {
       }
     }
 
-    def child = log(leaf)("leaf") | log(parent)("parent")
+    def child = log(leaf)("leaf") | no_log(parent)("parent")
 
     def leaf = "0" ~> wholeNumber into {
       metaCount =>
@@ -62,45 +73,6 @@ object Day08 extends App {
         println(next)
         null
     }
-  }
-
-
-  object BadSolution1 {
-
-    type Collect = (Int, Int, Array[Int]) // (childCount, metaCount, array)
-
-    //noinspection VariablePatternShadow
-    val collectMetaNodesBadSolution1: (Collect, Int) => Collect = {
-      case ((childCount, 0, array), node) => (node, -1, array)
-      case ((childCount, -1, array), node) => (childCount, node, array)
-      case ((0, metaCount, array), node) => (0, metaCount - 1, array :+ node)
-      case ((childCount, metaCount, array), node) => (childCount - 1, metaCount, array)
-    }
-
-    val (childCount9, metaCount9, array9) =
-      sampleInput.take(9).foldLeft((10, 0, Array.empty[Int]))(collectMetaNodesBadSolution1)
-
-    val (childCount10, metaCount10, array10) =
-      sampleInput.take(10).foldLeft((10, 0, Array.empty[Int]))(collectMetaNodesBadSolution1)
-
-    val (childCount11, metaCount11, array11) =
-      sampleInput.take(11).foldLeft((10, 0, Array.empty[Int]))(collectMetaNodesBadSolution1)
-  }
-
-
-  object BadSolution2 {
-
-    //noinspection VariablePatternShadow
-    def collectMetaNodesBadSolution2(tail: List[Int], metaNodes: List[Int]): List[Int] = tail match {
-
-      case 0 :: metaCount :: newTail =>
-        collectMetaNodesBadSolution2(newTail.drop(metaCount), metaNodes ::: newTail.take(metaCount))
-
-      case childCount :: metaCount :: newTail =>
-        collectMetaNodesBadSolution2(newTail, metaNodes)
-    }
-
-    collectMetaNodesBadSolution2(sampleInput.toList, List.empty[Int])
   }
 
 }
