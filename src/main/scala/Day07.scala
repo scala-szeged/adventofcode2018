@@ -7,42 +7,8 @@ object Day07 {
   }
 
   /*
-    -->A--->B--
-   /    \      \
-  C      -->D----->E
-   \           /
-    ---->F-----
-     */
-  def task1(lines: List[String]): String = {
-    val graf = getInstructions(lines).sortBy(_._1)
-    val count = graf.map(_._1).distinct.size
+  Sample input:
 
-    //noinspection ScalaUnnecessaryParentheses
-    def loop(remaining: List[(Char, Char)], result: List[Char]): List[Char] = {
-      val notResultYet: ((Char, Char)) => Boolean = {
-        case (x: Char, _: Char) => !result.contains(x)
-      }
-      val ys = graf.filter(notResultYet).map(_._2)
-      remaining.filter(notResultYet) match {
-        case Nil =>
-          if (result.size == count)
-            result
-          else
-            loop(graf, result)
-
-        case (x, y) :: tail =>
-          if (ys.contains(x))
-            loop(tail, result)
-          else
-            loop(graf, x :: result)
-      }
-    }
-
-    val r = loop(graf, List.empty[Char])
-    r.reverse.mkString + graf.filter{ case (_: Char, y: Char) => !r.contains(y) }.head._2
-  }
-
-  /*
   C  A
   C  F
   A  B
@@ -50,7 +16,43 @@ object Day07 {
   B  E
   D  E
   F  E
-   */
+
+  The graph given by the above input:
+
+    -->A--->B--
+   /    \      \
+  C      -->D----->E
+   \           /
+    ---->F-----
+     */
+  def task1(lines: List[String]): String = {
+    val graph = getInstructions(lines).sortBy(_._1)
+    val count = graph.map(_._1).distinct.size
+
+    //noinspection ScalaUnnecessaryParentheses
+    def loop(remaining: List[(Char, Char)], result: List[Char]): List[Char] = {
+      val notResultYet: ((Char, Char)) => Boolean = {
+        case (x: Char, _: Char) => !result.contains(x)
+      }
+      val ys = graph.filter(notResultYet).map(_._2)
+      remaining.filter(notResultYet) match {
+        case Nil =>
+          if (result.size == count)
+            result
+          else
+            loop(graph, result)
+
+        case (x, y) :: tail =>
+          if (ys.contains(x))
+            loop(tail, result)
+          else
+            loop(graph, x :: result)
+      }
+    }
+
+    val r = loop(graph, List.empty[Char])
+    r.reverse.mkString + graph.filter{ case (_: Char, y: Char) => !r.contains(y) }.head._2
+  }
 
   def task2(lines: List[String], workerCount: Int, extraTime: Int): Int = {
     0
