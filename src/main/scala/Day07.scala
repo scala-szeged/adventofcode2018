@@ -1,48 +1,58 @@
-import scala.annotation.tailrec
+
 
 object Day07 {
+
   private def getInstructions(lines: List[String]) = {
     lines.map(line => (line(5), line(36)))
   }
 
+  /*
+    -->A--->B--
+   /    \      \
+  C      -->D----->E
+   \           /
+    ---->F-----
+     */
   def task1(lines: List[String]): String = {
-    val allInstructions = getInstructions(lines)
+    val graf = getInstructions(lines).sortBy(_._1)
+    val count = graf.map(_._1).distinct.size
 
-    def hasDependency(step: Char, instructions: List[(Char, Char)]) =
-      instructions.map{case (_, followUpStep) => followUpStep}.contains(step)
-
-    @tailrec
-    def go(steps: String, orderedSteps: String): String =
-      if (steps isEmpty) orderedSteps
-      else {
-        val instructions = allInstructions.filter{case (dependencyStep, _) => steps.contains(dependencyStep)}
-        val nextElement = steps
-          .filterNot(hasDependency(_, instructions))
-          .sorted.headOption.getOrElse(steps.sorted.head)
-
-        val remainingSteps = steps.filterNot(_ == nextElement)
-        val nextOrderedSteps = orderedSteps + nextElement
-
-        go(remainingSteps, nextOrderedSteps)
+    //noinspection ScalaUnnecessaryParentheses
+    def loop(remaining: List[(Char, Char)], result: List[Char]): List[Char] = {
+      val notResultYet: ((Char, Char)) => Boolean = {
+        case (x: Char, _: Char) => !result.contains(x)
       }
+      val ys = graf.filter(notResultYet).map(_._2)
+      remaining.filter(notResultYet) match {
+        case Nil =>
+          if (result.size == count)
+            result
+          else
+            loop(graf, result)
 
-    val allSteps = allInstructions.flatMap{case (x, y) => s"$x$y"}.toSet.mkString
-    go(allSteps, "")
+        case (x, y) :: tail =>
+          if (ys.contains(x))
+            loop(tail, result)
+          else
+            loop(graf, x :: result)
+      }
+    }
+
+    val r = loop(graf, List.empty[Char])
+    r.reverse.mkString + graf.filter{ case (_: Char, y: Char) => !r.contains(y) }.head._2
   }
 
+  /*
+  C  A
+  C  F
+  A  B
+  A  D
+  B  E
+  D  E
+  F  E
+   */
 
   def task2(lines: List[String], workerCount: Int, extraTime: Int): Int = {
-    val initWorkers: List[(Option[Char], Int)] = (0 until workerCount).toList.map(_ => (None, 0))
-    Stream.iterate((0, initWorkers, getInstructions(lines))){
-      case (sec, workers, instructions) =>
-        val nextWorkers = ???
-        val remainingInstructions = ???
-
-        (sec + 1, nextWorkers, remainingInstructions)
-    }
-    ???
+    0
   }
-
-
-
 }
