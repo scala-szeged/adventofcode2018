@@ -21,7 +21,7 @@ class Day07Spec extends FlatSpec with Matchers {
   }
 
   it should "task1" in {
-    Day07.task1(lines) shouldBe "LAPFCRGHVZOTKWENBXIMSUDJQY"
+    Day07.task1(lines) shouldBe "ABLCFNSXZPRHVEGUYKDIMQTWJO"
   }
 
   it should "test of task2" in {
