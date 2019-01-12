@@ -31,11 +31,11 @@ object Day07 {
 
     //noinspection ScalaUnnecessaryParentheses
     def loop(remaining: List[(Char, Char)], result: List[Char]): List[Char] = {
-      val notResultYet: ((Char, Char)) => Boolean = {
+      val xNotResultYet: ((Char, Char)) => Boolean = {
         case (x: Char, _: Char) => !result.contains(x)
       }
-      val ys = graph.filter(notResultYet).map(_._2)
-      remaining.filter(notResultYet) match {
+      val blocked = graph.filter(xNotResultYet).map(_._2)
+      remaining.filter(xNotResultYet) match {
         case Nil =>
           if (result.size == count)
             result
@@ -43,7 +43,7 @@ object Day07 {
             loop(graph, result)
 
         case (x, y) :: tail =>
-          if (ys.contains(x))
+          if (blocked.contains(x))
             loop(tail, result)
           else
             loop(graph, x :: result)
